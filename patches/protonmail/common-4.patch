@@ -105,3 +105,19 @@ index 36bd0c712..c2fb3681c 100644
      if (doesNotSupportEarlyAccessVersion()) {
          return;
      }
+
+diff --git a/packages/components/containers/api/ApiProvider.js b/packages/components/containers/api/ApiProvider.js
+index 3d1b81941c..6ac2f748fa 100644
+--- a/packages/components/containers/api/ApiProvider.js
++++ b/packages/components/containers/api/ApiProvider.js
+@@ -120,7 +120,9 @@ const ApiProvider = ({ config, onLogout, children, UID, noErrorState }) => {
+                             error.cancel = true;
+                             reject(error);
+                         }}
+-                    />
++                    />,
++                    // trying to force single instance, see https://github.com/vladimiry/ElectronMail/issues/621#issuecomment-1627389416
++                    "HumanVerificationModal_ID",
+                 );
+             });
+         };
