@@ -86,10 +86,10 @@ index acfa71607..216229b0f 100644
   * Verify the extracted `signature` of a decryption result against its `decryptedRawContent`
 
 diff --git a/applications/mail/src/app/logic/messages/messagesTypes.ts b/applications/mail/src/app/logic/messages/messagesTypes.ts
-index 0531de00e..665b8d087 100644
+index 29d48870ab..fc19436f55 100644
 --- a/applications/mail/src/app/logic/messages/messagesTypes.ts
 +++ b/applications/mail/src/app/logic/messages/messagesTypes.ts
-@@ -44,6 +44,7 @@ export interface MessageVerification {
+@@ -49,20 +49,24 @@ export interface MessageVerification {
       */
      verificationErrors: Error[] | undefined;
 
@@ -97,10 +97,19 @@ index 0531de00e..665b8d087 100644
      /**
       * Pinned public keys of the sender which can verify, if any
       */
-@@ -58,6 +59,7 @@ export interface MessageVerification {
+     senderPinnedKeys: PublicKeyReference[] | undefined;
++    /* </electron-mail-mark> */
+
+     /**
+      * Sender public keys retrieved from API which can are not pinned
+      */
+     senderPinnableKeys: PublicKeyReference[] | undefined;
+
++    /* <electron-mail-mark> */
+     /**
       * If the sender is in the list of contacts, whether its contact signature has been verified
       */
-     senderVerified: boolean | undefined;
+     pinnedKeysVerified: boolean | undefined;
 +    /* </electron-mail-mark> */
 
      /**
@@ -284,26 +293,26 @@ index bdabb99e0..a56b8cdcb 100644
          onClose?.();
      };
 
-diff --git a/applications/mail/src/app/components/header/MailHeader.tsx b/applications/mail/src/app/components/header/MailHeader.tsx
-index d86dc9880..e75180b46 100644
---- a/applications/mail/src/app/components/header/MailHeader.tsx
-+++ b/applications/mail/src/app/components/header/MailHeader.tsx
-@@ -38,7 +38,6 @@ import { setParamsInUrl } from '../../helpers/mailboxUrl';
- import { Breakpoints } from '../../models/utils';
- import MailOnboardingModal from '../onboarding/MailOnboardingModal';
+diff --git a/applications/mail/src/app/components/header/MailHeaderSettingsButton.tsx b/applications/mail/src/app/components/header/MailHeaderSettingsButton.tsx
+index 56ccf9899d..99ace2eae0 100644
+--- a/applications/mail/src/app/components/header/MailHeaderSettingsButton.tsx
++++ b/applications/mail/src/app/components/header/MailHeaderSettingsButton.tsx
+@@ -19,7 +19,6 @@ import { KeyTransparencyActivation } from '@proton/shared/lib/interfaces';
+
+ import { useEncryptedSearchContext } from '../../containers/EncryptedSearchProvider';
  import ClearBrowserDataModal from './ClearBrowserDataModal';
 -import MailDefaultHandlerModal from './MailDefaultHandlerModal';
- import MailSearch from './search/MailSearch';
+ import OnboardingChecklistModal from './OnboardingChecklistModal';
 
- interface Props {
-@@ -192,7 +191,6 @@ const MailHeader = ({ labelID, elementID, breakpoints, expanded, onToggleExpand
+ const MailHeaderSettingsButton = () => {
+@@ -155,7 +154,6 @@ const MailHeaderSettingsButton = () => {
              <MailViewLayoutModal {...mailViewLayoutProps} />
              <MailDensityModal {...mailDensityProps} />
              <MailComposerModeModal {...mailComposerModeProps} />
 -            <MailDefaultHandlerModal {...mailDefaultHandlerProps} />
              <ClearBrowserDataModal {...clearBrowserDataProps} />
-             <RebrandingFeedbackModal {...feedbackModalProps} />
-         </>
+             <KeyTransparencyDetailsModal {...keyTransparencyDetailsModalProps} />
+             <OnboardingChecklistModal {...onboardingChecklistProps} />
 
 diff --git a/applications/mail/src/app/helpers/url.ts b/applications/mail/src/app/helpers/url.ts
 index 2aaa779d3..487f54ff3 100644
@@ -329,21 +338,37 @@ index 2aaa779d3..487f54ff3 100644
  };
 
 diff --git a/applications/mail/src/app/components/header/search/MailSearch.tsx b/applications/mail/src/app/components/header/search/MailSearch.tsx
-index 6318e40be..ebbce0086 100644
+index 6751a5c4e4..3eaa8effd6 100644
 --- a/applications/mail/src/app/components/header/search/MailSearch.tsx
 +++ b/applications/mail/src/app/components/header/search/MailSearch.tsx
-@@ -11,10 +11,7 @@ import {
+@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
+ import { Location } from 'history';
+
+ import {
+-    FeatureCode,
+     TopNavbarListItemSearchButton,
+     generateUID,
+     useAddresses,
+@@ -11,14 +10,11 @@ import {
+     useLabels,
      useMailSettings,
      usePopperAnchor,
+-    useProgressiveRollout,
      useToggle,
 -    useUser,
  } from '@proton/components';
--import { isMobile } from '@proton/shared/lib/helpers/browser';
--import { isPaid } from '@proton/shared/lib/user/helpers';
 
  import { ADVANCED_SEARCH_OVERLAY_CLOSE_EVENT } from '../../../constants';
  import { useEncryptedSearchContext } from '../../../containers/EncryptedSearchProvider';
-@@ -40,7 +37,6 @@ const MailSearch = ({ breakpoints, labelID, location }: Props) => {
+-import { isEncryptedSearchAvailable } from '../../../helpers/encryptedSearch/esUtils';
+ import { extractSearchParameters } from '../../../helpers/mailboxUrl';
+ import { useClickMailContent } from '../../../hooks/useClickMailContent';
+ import { Breakpoints } from '../../../models/utils';
+@@ -38,11 +34,9 @@ interface Props {
+
+ const MailSearch = ({ breakpoints, labelID, location }: Props) => {
+     const [uid] = useState(generateUID('advanced-search-overlay'));
+-    const isESUserInterfaceAvailable = useProgressiveRollout(FeatureCode.ESUserInterface);
      const { anchorRef, isOpen, open, close } = usePopperAnchor<HTMLInputElement>();
      const searchParams = extractSearchParameters(location);
      const [searchInputValue, setSearchInputValue] = useState(searchParams.keyword || '');
@@ -351,11 +376,11 @@ index 6318e40be..ebbce0086 100644
      const [, loadingMailSettings] = useMailSettings();
      const [, loadingLabels] = useLabels();
      const [, loadingFolders] = useFolders();
-@@ -49,7 +45,7 @@ const MailSearch = ({ breakpoints, labelID, location }: Props) => {
+@@ -50,7 +44,7 @@ const MailSearch = ({ breakpoints, labelID, location }: Props) => {
+     const { getESDBStatus, cacheIndexedDB, closeDropdown } = useEncryptedSearchContext();
      const { dropdownOpened } = getESDBStatus();
      const esState = useEncryptedSearchToggleState(isOpen);
-
--    const showEncryptedSearch = !isMobile() && !!isPaid(user);
+-    const showEncryptedSearch = isEncryptedSearchAvailable(user, isESUserInterfaceAvailable);
 +    const showEncryptedSearch = false;
 
      // Show more from inside AdvancedSearch to persist the state when the overlay is closed

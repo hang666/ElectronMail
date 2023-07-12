@@ -14,14 +14,14 @@ index 7bef98525..0650e8019 100644
  // initialize the download in the browser. The response has headers to
 
 diff --git a/applications/drive/src/app/store/_shares/shareUrl.ts b/applications/drive/src/app/store/_shares/shareUrl.ts
-index 733cf9242..ab5781793 100644
+index 76b907e2a1..a267a2d50c 100644
 --- a/applications/drive/src/app/store/_shares/shareUrl.ts
 +++ b/applications/drive/src/app/store/_shares/shareUrl.ts
-@@ -40,6 +40,6 @@ export const getSharedLink = (sharedURL?: {
+@@ -36,6 +36,6 @@ export const getSharedLink = (sharedURL?: {
 
-     const [generatedPassword] = splitGeneratedAndCustomPassword(sharedURL.Password, sharedURL);
+     const [generatedPassword] = splitGeneratedAndCustomPassword(sharedURL.password, sharedURL);
 
--    const url = sharedURL.PublicUrl ? sharedURL.PublicUrl : `${window.location.origin}/urls/${sharedURL.Token}`;
-+    const url = sharedURL.PublicUrl ? sharedURL.PublicUrl : `https://drive.protonmail.com/urls/${sharedURL.Token}`;
+-    const url = sharedURL.publicUrl ? sharedURL.publicUrl : `${window.location.origin}/urls/${sharedURL.token}`;
++    const url = sharedURL.publicUrl ? sharedURL.publicUrl : `https://drive.protonmail.com/urls/${sharedURL.token}`;
      return `${url}${generatedPassword !== '' ? `#${generatedPassword}` : ''}`;
  };

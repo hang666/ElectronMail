@@ -107,7 +107,7 @@ index 36bd0c712..c2fb3681c 100644
      }
 
 diff --git a/applications/mail/src/app/hooks/useShowUpsellBanner.ts b/applications/mail/src/app/hooks/useShowUpsellBanner.ts
-index b76334920b..2501a4d4ad 100644
+index d203f913fa..178153c592 100644
 --- a/applications/mail/src/app/hooks/useShowUpsellBanner.ts
 +++ b/applications/mail/src/app/hooks/useShowUpsellBanner.ts
 @@ -33,6 +33,7 @@ const useShowUpsellBanner = (labelID: string, otherBannerDisplayed: boolean) =>
@@ -116,7 +116,7 @@ index b76334920b..2501a4d4ad 100644
       */
 +    /* <electron-mail-mark> */
      const canDisplayUpsellBanner =
-         !user.hasPaidMail &&
+         user.isFree &&
          Date.now() > threeDaysAfterCreationDate &&
 @@ -40,6 +41,7 @@ const useShowUpsellBanner = (labelID: string, otherBannerDisplayed: boolean) =>
          needToShowUpsellBanner.current &&

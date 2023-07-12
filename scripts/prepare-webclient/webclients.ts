@@ -325,6 +325,9 @@ async function executeBuildFlow(
                                 ...process.env,
                                 ...(publicPath && {PUBLIC_PATH: publicPath}),
                                 NODE_ENV: "production",
+                                ...((repoType === "proton-account" || repoType === "proton-vpn-settings") && {
+                                    TS_NODE_PROJECT: "../../tsconfig.webpack.json",
+                                }),
                             },
                         },
                     ],
