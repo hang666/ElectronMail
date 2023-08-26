@@ -219,6 +219,7 @@ const contentBuilders: Record<"eml" | "json",
 
         const rawMail = parseProtonRestModel(mail);
 
+        
         return JSON.stringify(
             {
                 ...augmentRawMailWithBodyFields(mail, false),
