@@ -44,8 +44,8 @@ const fileExists = async (file: string): Promise<boolean> => {
 type generateFileNameType = (mail: Mail, dir: string, fileType: "eml" | "json") => Promise<string>;
 
 const generateFileName: generateFileNameType = (() => {
-    const safeFileNameRe = /[^A-Za-z0-9]+/g;
-    const generatingLimit = 10;
+    const safeFileNameRe = /[^\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FFA-Za-z0-9]+/g;
+    const generatingLimit = 99;
     const resultFn: generateFileNameType = async (mail, dir, type) => {
         const extension = `.${type}`;
         const fileNameWithoutExtensionLengthLimit = 255 - extension.length;
